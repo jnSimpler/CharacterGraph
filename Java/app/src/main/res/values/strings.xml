@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CharacterGraph</string>
+
+    <string name="C_button">Char2Img</string>
+    <string name="I_button">Img2Char</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>
