@@ -120,4 +120,7 @@
   <metadata name="openFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="openFileDialog.Filter" xml:space="preserve">
+    <value>Image Files|*.bmp;*.rle;*.dib;*.exif;*.gif;*.jpg;*.jpeg;*.jpe;*.png;*.tif;*.tiff;*.wmf;*.emf|Bitmap Images (*.bmp, *.rle, *.dib)|*.bmp;*.rle;*.dib|Exchangeable Image Files (*.exif)|*.exif|GIF Images (*.gif)|*.gif|JPEG Images (*.jpg, *.jpeg, *.jpe)|*.jpg;*.jpeg;*.jpg|Portable Network Graphics Images (*.png)|*.png|TIF Images (*.tif, *.tiff)|*.tif;*.tiff|Windows Metafile Images (*.emf, *.wmf)|*.emf;*.wmf|All Files (*.*)|*.*</value>
+  </data>
 </root>
