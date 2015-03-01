@@ -1,5 +1,4 @@
 #include "MyForm.h"
-#include "ImageVSText.h"
 #pragma comment( linker, "/subsystem:\"windows\" /entry:\"main\"" )
 //define entry point
 

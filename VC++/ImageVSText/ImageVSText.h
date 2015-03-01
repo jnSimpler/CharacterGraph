@@ -1,6 +1,5 @@
 #pragma once
 
-#include "MyForm.h"
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -26,6 +25,7 @@ using namespace System::Drawing;
 using namespace System::Drawing::Imaging;
 using namespace System::Drawing::Drawing2D;
 using namespace System::IO;
+using namespace System::Text;
 
 namespace ImgDataTech
 {
@@ -378,6 +378,47 @@ namespace ImgDataTech
 			return result;
 		}
 	};
+
+	class ValuesToText
+	{
+	public:
+		static string Apply(byte** values, Size^ outputSize, string Ramp)
+		{
+			if (values == NULL)
+			{
+				return NULL;
+			}
+
+			char *valueCharacters = new char[256];
+
+			float length = (float)(Ramp.length() - 1);
+
+			for (int x = 0; x < 256; x++)
+			{
+				valueCharacters[x] = Ramp[(int)((((float)x / float(255.0)) * length) + float(0.5))];
+			}
+
+			int numberOfColumns = outputSize->Width;
+			int numberOfRows = outputSize->Height;
+
+			string result;
+
+			for (int y = 0; y < numberOfRows; y++)
+			{
+				StringBuilder^ builder = gcnew StringBuilder();
+
+				for (int x = 0; x < numberOfColumns; x++)
+				{
+					builder->Append(gcnew String(valueCharacters, values[y][x], 1));
+				}
+
+				result += SStringToSTLString(builder->ToString());
+				result += "\n";
+			}
+
+			return result;
+		}
+	};
 	
 	class ConvertImage
 	{
@@ -386,25 +427,27 @@ namespace ImgDataTech
 	class ImgData
 	{
 	private:
-	public:
-		char* word;
+		int Brightness, Contrast;
 		bool Existing, Finished;
 		gcroot<Bitmap ^> bmp;
 		byte** values;
 		long len;
-		gcroot<Image ^> img;
-	
-		void Create(Image^ img)
+		gcroot<Image ^> img, img0;
+		gcroot<String ^> word;
+	public:
+		/*void Create(Image^ img)
 		{
 			this->Existing = 1;
 			this->Finished = 0;
 			this->img = img;
+			this->img0 = new Bitmap(img);
 			this->bmp = gcnew Bitmap(img);
-		};
+		};*/
 		void Create(String^ FName)
 		{
 			this->Existing = 1;
 			this->Finished = 0;
+			this->img0 = Image::FromFile(FName);
 			this->img = Image::FromFile(FName);
 			this->bmp = gcnew Bitmap(img);
 		};
@@ -442,6 +485,18 @@ namespace ImgDataTech
 		{
 			return this->Finished;
 		}
+		bool ReSize(double Wr, double Hr)
+		{
+			int _W = int(this->GetW()*Wr);
+			int _H = int(this->GetH()*Hr);
+			if (this->GetW() < 1 || this->GetH() < 1 || _W < 1 || _H < 1)
+			{
+				return 0;
+			}
+			this->bmp = gcnew Bitmap(this->img0, _W, _H);
+			this->img = bmp;
+			return 1;
+		}
 		bool ConvertI2V(string mask)
 		{
 			if (this->GetW() < 1 || this->GetH() < 1 || mask.length() < 1)
@@ -470,28 +525,15 @@ namespace ImgDataTech
 			return 0;
 			}*/
 
+			// convert the values into texts
 			this->len = this->GetW()*this->GetH();
 			int maxl = this->len + this->GetH() + 2;
-			this->word = new char[maxl];
-			memset(this->word, 0, maxl);
-			//memcpy(this->word, this->values, len);
-			{
-				const byte index = 255;
-				short interval = (mask.length() < 257) ? mask.length() : 256;
-				byte *h = this->values[0], *r = h + len;
-				char *q = this->word;
-				for (byte *p = h; p != r; p++)
-				{
-					//*(q++) = mask[((*p) >> 8) % interval];
-					*(q++) = mask[((*p)) % interval];
-					if ((p - h + 1) % this->GetW() == 0) *(q++) = '\n';
-				};
-				*(q++) = '\0';
-			}
+			string Converted = ValuesToText::Apply(this->values, gcnew Size(this->GetW(), this->GetH()), mask);
+			this->word = gcnew String(Converted.c_str());
 
 			return this->Finished = 1;
 		}
-		char* GetWord()
+		String^ GetWord()
 		{
 			return this->word;
 		}
@@ -501,7 +543,8 @@ namespace ImgDataTech
 			this->Finished = 0;
 			delete this->img;
 			delete this->bmp;
-			free(word);
+			delete this->word;
+			delete this->img0;
 		};
 		~ImgData()
 		{
