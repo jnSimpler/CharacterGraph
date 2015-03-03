@@ -1,4 +1,5 @@
 #pragma once
+#pragma comment( lib, "gdi32.lib" )
 
 #include <vector>
 #include <cmath>
@@ -12,7 +13,10 @@
 #include <sstream>
 #include <msclr\marshal.h>
 #include <vcclr.h>
+#include <windows.h>
+#include <wingdi.h>
 #using <mscorlib.dll>
+//#using <gdi32.dll>
 
 using namespace cli;
 using namespace std;
@@ -36,10 +40,202 @@ namespace ImgDataTech
 		return (char*)(void*)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(str);
 	};
 
+	class FontFunctions
+	{
+	private:
+		struct TextMetric
+		{
+			/// <summary>Specifies the height (ascent + descent) of characters</summary>
+			int tmHeight;
+
+			/// <summary>Specifies the ascent (units above the base line) of characters</summary>
+			int tmAscent;
+
+			/// <summary>Specifies the descent (units below the base line) of characters</summary>
+			int tmDescent;
+
+			/// <summary>Specifies the amount of leading (space) inside the bounds set by the tmHeight member</summary>
+			int tmInternalLeading;
+
+			/// <summary>Specifies the amount of extra leading (space) that the application adds between rows</summary>
+			int tmExternalLeading;
+
+			/// <summary>Specifies the average width of characters in the font</summary>
+			int tmAveCharWidth;
+
+			/// <summary>Specifies the width of the widest character in the font</summary>
+			int tmMaxCharWidth;
+
+			/// <summary>Specifies the weight of the font</summary>
+			int tmWeight;
+
+			/// <summary>Specifies the extra width per string that may be added to some synthesized fonts</summary>
+			int tmOverhang;
+
+			/// <summary>Specifies the horizontal aspect of the device for which the font was designed</summary>
+			int tmDigitizedAspectX;
+
+			/// <summary>Specifies the vertical aspect of the device for which the font was designed</summary>
+			int tmDigitizedAspectY;
+
+			/// <summary>Specifies the value of the first character defined in the font</summary>
+			char tmFirstChar;
+
+			/// <summary>Specifies the value of the last character defined in the font</summary>
+			char tmLastChar;
+
+			/// <summary>Specifies the value of the character to be substituted for characters not in the font</summary>
+			char tmDefaultChar;
+
+			/// <summary>Specifies the value of the character that will be used to define word breaks for text justification</summary>
+			char tmBreakChar;
+
+			/// <summary>Specifies an italic font if it is nonzero</summary>
+			byte tmItalic;
+
+			/// <summary>Specifies an underlined font if it is nonzero</summary>
+			byte tmUnderlined;
+
+			/// <summary>Specifies a strikeout font if it is nonzero</summary>
+			byte tmStruckOut;
+
+			/// <summary>Specifies information about the pitch, the technology, and the family of a physical font</summary>
+			byte tmPitchAndFamily;
+
+			/// <summary>Specifies the character set of the font</summary>
+			byte tmCharSet;
+		};
+	public:
+		static Size MeasureText(String^ text, Font^ font)
+		{
+			if (String::IsNullOrEmpty(text) || font == nullptr)
+			{
+				return Size::Empty;
+			}
+
+			{
+				Bitmap^ bitmap = gcnew Bitmap(1, 1);
+				return TextRenderer::MeasureText(
+					Graphics::FromImage(bitmap),
+					text,
+					font,
+					Size(1, 1),
+					TextFormatFlags::NoPadding | TextFormatFlags::NoPrefix);
+				
+			}
+		}
+
+		/*static bool IsFixedPitch(Font^ font)
+		{
+			if (font == nullptr)
+			{
+				return 1;
+			}
+
+			bool result;
+
+			IntPtr fnt = font->ToHfont();
+
+			{
+				Bitmap^ bmp = gcnew Bitmap(1, 1);
+				{
+					Graphics^ g = Graphics::FromImage(bmp);
+					IntPtr hdc = g->GetHdc();
+
+					// store the current font and set the new one
+					IntPtr fntOld = SelectObject(hdc, fnt);
+
+					TextMetric metric = new TextMetric();
+
+					GetTextMetrics(hdc, ref metric);
+
+					result = (metric.tmPitchAndFamily & TMPF_FIXED_PITCH) == 0;
+
+					// restore the old font
+					SelectObject(hdc, fntOld);
+
+					g.ReleaseHdc(hdc);
+				}
+			}
+
+			DeleteObject(fnt);
+
+			return result;
+		}*/
+
+		/*static bool IsFixedWidth(Font font)
+		{
+			return IsFixedPitch(font);
+		}*/
+	};
+
+	class Extension
+	{
+	public:
+		static string ResetExt(int Index, string extension)
+		{
+			string ext;
+
+			switch (Index)
+			{
+			case 1:
+				if (extension != ".bmp" && extension != ".rle" && extension != ".dib") ext = ".bmp";
+				break;
+			case 2:
+				if (extension != ".gif") ext = ".gif";
+				break;
+			case 3:
+				if (extension != ".jpg" && extension != ".jpeg" && extension != ".jpe") ext = ".jpg";
+				break;
+			case 4:
+				if (extension != ".png") ext = ".png";
+				break;
+			case 5:
+				if (extension != ".tif") ext = ".tif";
+				break;
+			}
+
+			return ext;
+		}
+
+		//return the extension name with lower letters
+		static string GetExt(String^ FileName)
+		{
+			return SStringToSTLString(Path::GetExtension(FileName)->ToLower());
+		}
+	};
+
+	class Filter
+	{
+	public:
+		//generate an array of Strings to fill the filter of savefiledialog
+		static array<String ^> ^ SaveTypeFilter()
+		{
+			return gcnew array<String ^>(
+			{
+				L"All Files" + " (*.*)|*.*",
+				L"Bitmap Images" + " (*.bmp, *.rle, *.dib)|*.bmp;*.rle;*.dib|",
+				L"GIF Images" + " (*.gif)|*.gif|",
+				L"JPEG Images" + " (*.jpg, *.jpeg, *.jpe)|*.jpg;*.jpeg;*.jpg|",
+				L"Portable Network Graphics Images" + " (*.png)|*.png|",
+				L"TIF Images" + " (*.tif, *.tiff)|*.tif;*.tiff|",
+			}
+			);
+		}
+
+		//generate selected Strings to fill the filter of savefiledialog
+		static String ^ SelectSaveTypeFilter(int Index)
+		{
+			array<String ^> ^ Strings = SaveTypeFilter();
+			return gcnew String(Strings[Index] + Strings[0]);
+		}
+	};
+
 	class ImageFunctions
 	{
 	public:
-		ImageFormat^ GetImageFormat(string extension)
+		//Convert Extension string to ImageFormat
+		static ImageFormat^ GetImageFormat(string extension)
 		{
 			Guid result;
 
@@ -63,6 +259,47 @@ namespace ImgDataTech
 			}
 
 			return gcnew ImageFormat(result);
+		}
+
+		//Convert Extension string to ImageFormatID
+		static int GetImageFormatIndex(string extension)
+		{
+			int index;
+
+			switch (extension[1])
+			{
+			case 'p':
+				index = 4;
+				break;
+			case 'j':
+				index = 3;
+				break;
+			case 'g':
+				index = 2;
+				break;
+			case 't':
+				index = 5;
+				break;
+			default: // bmp, rle, dib
+				index = 1;
+				break;
+			}
+
+			return index;
+		}
+
+		//Convert Guid to String
+		static String^ SetImageFormat(Guid guid)
+		{
+			String^ result;
+
+			if (guid == ImageFormat::Png->Guid) result = ".png";
+			else if (guid == ImageFormat::Jpeg->Guid) result = ".jpg";
+			else if (guid == ImageFormat::Gif->Guid) result = ".gif";
+			else if (guid == ImageFormat::Tiff->Guid) result = ".tif";
+			else if (guid == ImageFormat::Bmp->Guid) result = ".bmp";
+
+			return result;
 		}
 	};
 
@@ -419,6 +656,137 @@ namespace ImgDataTech
 			return result;
 		}
 	};
+
+	class TextToImage
+	{
+	private:
+		static ColorMatrix^ Grayscale()
+		{
+			return gcnew ColorMatrix(
+				gcnew array<array<float> ^>
+			{
+				gcnew array<float> { float(0.299), float(0.299), float(0.299), float(0), float(0) },
+					gcnew array<float> { float(0.587), float(0.587), float(0.587), float(0), float(0) },
+					gcnew array<float> { float(0.114), float(0.114), float(0.114), float(0), float(0) },
+					gcnew array<float> { float(0), float(0), float(0), float(1), float(0) },
+					gcnew array<float> { float(0), float(0), float(0), float(0), float(1) }
+			}
+			);
+		}
+	public:
+		static Bitmap^ Convert(String^ text, Font^ font, Color textColor, Color backgroundColor, Point offset)
+		{
+			Size size = FontFunctions::MeasureText(text, font);
+
+			Bitmap^ result = gcnew Bitmap(size.Width, size.Height);
+
+			{
+				Graphics^ graphics = Graphics::FromImage(result);
+				graphics->Clear(backgroundColor);
+				IDeviceContext^ g = graphics;
+				TextRenderer::DrawText(
+					g,
+					text,
+					font,
+					offset,
+					textColor,
+					backgroundColor,
+					TextFormatFlags::NoPadding | TextFormatFlags::NoPrefix);
+			}
+
+			return result;
+		}
+
+		static Bitmap^ Convert(String^ text, Font^ font, Color textColor, Color backgroundColor)
+		{
+			return Convert(text, font, textColor, backgroundColor, Point(0, 0));
+		}
+
+		static Bitmap^ Convert(String^ text, Font^ font)
+		{
+			return Convert(text, font, Color::Black, Color::White);
+		}
+	};
+
+	class TextToColorImage
+	{
+	public:
+		/*static Image^ Convert(String^ text, Font^ font, Color** textColors, Color backgroundColor, float scale)
+		{
+			if (!FontFunctions::IsFixedWidth(font) || text == null || textColors == null)
+			{
+				return null;
+			}
+
+			// size the output image must be to fit the text
+			Size size = FontFunctions.MeasureText(FontFunctions.StringArrayToString(text), font);
+
+			// size of one character in the font
+			Size characterSize = FontFunctions.GetFixedPitchFontSize(font);
+
+			Bitmap fullSize = new Bitmap(size.Width, size.Height);
+
+			using (Graphics g = Graphics.FromImage(fullSize))
+			{
+				g.Clear(backgroundColor);
+
+				int width = textColors[0].Length;
+				int height = textColors.Length;
+
+				for (int y = 0; y < height; y++)
+				{
+					string line = text[y];
+
+					for (int x = 0; x < width; x++)
+					{
+						if (textColors[y][x] == backgroundColor)
+						{
+							continue;
+						}
+
+						Point offset = new Point(x * characterSize.Width, y * characterSize.Height);
+
+						using (SolidBrush brush = new SolidBrush(textColors[y][x]))
+						{
+							g.DrawString(
+								line[x].ToString(),
+								font,
+								brush,
+								offset,
+								StringFormat.GenericTypographic);
+						}
+					}
+				}
+			}
+
+			if (scale == float(100))
+			{
+				return fullSize;
+			}
+
+			float magnification = scale / float(100);
+
+			Size newSize = new Size(
+				(int)((fullSize.Width * magnification) + 0.5),
+				(int)((fullSize.Height * magnification) + 0.5));
+
+			newSize.Width = Math.Max(newSize.Width, 1);
+			newSize.Height = Math.Max(newSize.Height, 1);
+
+			Bitmap resized = new Bitmap(newSize.Width, newSize.Height);
+
+			using (Graphics g = Graphics.FromImage(resized))
+			{
+				g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
+				g.DrawImage(fullSize, new Rectangle(0, 0, newSize.Width, newSize.Height));
+			}
+
+			fullSize.Dispose();
+
+			return resized;
+		}*/
+	};
 	
 	class ConvertImage
 	{
@@ -432,9 +800,11 @@ namespace ImgDataTech
 		gcroot<Bitmap ^> bmp;
 		byte** values;
 		long len;
-		gcroot<Image ^> img, img0;
+		gcroot<Image ^> img0;
 		gcroot<String ^> word;
+		gcroot<ImageFormat ^> imgfmt;
 	public:
+		gcroot<Image ^> img;
 		/*void Create(Image^ img)
 		{
 			this->Existing = 1;
@@ -450,6 +820,7 @@ namespace ImgDataTech
 			this->img0 = Image::FromFile(FName);
 			this->img = Image::FromFile(FName);
 			this->bmp = gcnew Bitmap(img);
+			this->imgfmt = ImageFunctions::GetImageFormat(Extension::GetExt(FName));
 		};
 		ImgData()
 		{
@@ -464,6 +835,14 @@ namespace ImgDataTech
 		Image^ GetImg()
 		{
 			return this->img;
+		}
+		ImageFormat^ GetImgFmt()
+		{
+			return this->imgfmt;
+		}
+		Guid GetGuid()
+		{
+			return this->img->RawFormat->Guid;
 		}
 		int GetW()
 		{
@@ -526,12 +905,14 @@ namespace ImgDataTech
 			}*/
 
 			// convert the values into texts
-			this->len = this->GetW()*this->GetH();
-			int maxl = this->len + this->GetH() + 2;
 			string Converted = ValuesToText::Apply(this->values, gcnew Size(this->GetW(), this->GetH()), mask);
 			this->word = gcnew String(Converted.c_str());
 
 			return this->Finished = 1;
+		}
+		bool ConvertT2I(Font^ font)
+		{
+			return 1;
 		}
 		String^ GetWord()
 		{

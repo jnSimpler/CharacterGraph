@@ -36,7 +36,8 @@ namespace ImageVSText {
 
 	private: System::Windows::Forms::Button^  OpenButton;
 	private: System::Windows::Forms::Panel^  panel1;
-	private: System::Windows::Forms::Button^  SaveButton;
+	private: System::Windows::Forms::Button^  SaveTextButton;
+
 	private: System::Windows::Forms::Button^  ProceedButton;
 	private: System::Windows::Forms::PictureBox^  Box1;
 	private: System::Windows::Forms::PictureBox^  Box2;
@@ -56,6 +57,11 @@ namespace ImageVSText {
 	private: System::Windows::Forms::Label^  label5;
 	private: System::Windows::Forms::Label^  label3;
 	private: System::Windows::Forms::TextBox^  RBoxW;
+	private: System::Windows::Forms::Button^  SaveImgbutton;
+	private: System::Windows::Forms::SaveFileDialog^  saveFileDialogText;
+	private: System::Windows::Forms::SaveFileDialog^  saveFileDialogImage;
+
+
 	protected:
 
 	private:
@@ -75,6 +81,7 @@ namespace ImageVSText {
 			this->openFileDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->OpenButton = (gcnew System::Windows::Forms::Button());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->SaveImgbutton = (gcnew System::Windows::Forms::Button());
 			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->RBoxW = (gcnew System::Windows::Forms::TextBox());
@@ -90,8 +97,10 @@ namespace ImageVSText {
 			this->TextBox = (gcnew System::Windows::Forms::RichTextBox());
 			this->Box2 = (gcnew System::Windows::Forms::PictureBox());
 			this->Box1 = (gcnew System::Windows::Forms::PictureBox());
-			this->SaveButton = (gcnew System::Windows::Forms::Button());
+			this->SaveTextButton = (gcnew System::Windows::Forms::Button());
 			this->ProceedButton = (gcnew System::Windows::Forms::Button());
+			this->saveFileDialogText = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->saveFileDialogImage = (gcnew System::Windows::Forms::SaveFileDialog());
 			this->panel1->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown2))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
@@ -119,6 +128,7 @@ namespace ImageVSText {
 			// 
 			// panel1
 			// 
+			this->panel1->Controls->Add(this->SaveImgbutton);
 			this->panel1->Controls->Add(this->label5);
 			this->panel1->Controls->Add(this->label3);
 			this->panel1->Controls->Add(this->RBoxW);
@@ -134,7 +144,7 @@ namespace ImageVSText {
 			this->panel1->Controls->Add(this->TextBox);
 			this->panel1->Controls->Add(this->Box2);
 			this->panel1->Controls->Add(this->Box1);
-			this->panel1->Controls->Add(this->SaveButton);
+			this->panel1->Controls->Add(this->SaveTextButton);
 			this->panel1->Controls->Add(this->ProceedButton);
 			this->panel1->Controls->Add(this->OpenButton);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Fill;
@@ -142,6 +152,16 @@ namespace ImageVSText {
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(761, 294);
 			this->panel1->TabIndex = 1;
+			// 
+			// SaveImgbutton
+			// 
+			this->SaveImgbutton->Location = System::Drawing::Point(246, 3);
+			this->SaveImgbutton->Name = L"SaveImgbutton";
+			this->SaveImgbutton->Size = System::Drawing::Size(75, 23);
+			this->SaveImgbutton->TabIndex = 18;
+			this->SaveImgbutton->Text = L"SaveImage";
+			this->SaveImgbutton->UseVisualStyleBackColor = true;
+			this->SaveImgbutton->Click += gcnew System::EventHandler(this, &MyForm::SaveImgbutton_Click);
 			// 
 			// label5
 			// 
@@ -249,16 +269,16 @@ namespace ImageVSText {
 			// 
 			// maskBox
 			// 
-			this->maskBox->Location = System::Drawing::Point(246, 5);
+			this->maskBox->Location = System::Drawing::Point(327, 5);
 			this->maskBox->Name = L"maskBox";
-			this->maskBox->Size = System::Drawing::Size(269, 21);
+			this->maskBox->Size = System::Drawing::Size(188, 21);
 			this->maskBox->TabIndex = 5;
 			this->maskBox->Text = L"MMMMMMM@@@@@@@WWWWWWWWWBBBBBBBB000000008888888ZZZZZZZZZaZaaaaaa2222222SSSSSSSXXXX"
 				L"XXXXXXX7777777rrrrrrr;;;;;;;;iiiiiiiii:::::::,:,,,,,,.........       ";
 			// 
 			// TextBox
 			// 
-			this->TextBox->Font = (gcnew System::Drawing::Font(L"SimSun", 3, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+			this->TextBox->Font = (gcnew System::Drawing::Font(L"SimSun", 6, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->TextBox->Location = System::Drawing::Point(246, 32);
 			this->TextBox->Name = L"TextBox";
@@ -283,15 +303,15 @@ namespace ImageVSText {
 			this->Box1->TabIndex = 2;
 			this->Box1->TabStop = false;
 			// 
-			// SaveButton
+			// SaveTextButton
 			// 
-			this->SaveButton->Enabled = false;
-			this->SaveButton->Location = System::Drawing::Point(165, 3);
-			this->SaveButton->Name = L"SaveButton";
-			this->SaveButton->Size = System::Drawing::Size(75, 23);
-			this->SaveButton->TabIndex = 2;
-			this->SaveButton->Text = L"Save";
-			this->SaveButton->UseVisualStyleBackColor = true;
+			this->SaveTextButton->Location = System::Drawing::Point(165, 3);
+			this->SaveTextButton->Name = L"SaveTextButton";
+			this->SaveTextButton->Size = System::Drawing::Size(75, 23);
+			this->SaveTextButton->TabIndex = 2;
+			this->SaveTextButton->Text = L"SaveText";
+			this->SaveTextButton->UseVisualStyleBackColor = true;
+			this->SaveTextButton->Click += gcnew System::EventHandler(this, &MyForm::SaveTextButton_Click);
 			// 
 			// ProceedButton
 			// 
@@ -302,6 +322,10 @@ namespace ImageVSText {
 			this->ProceedButton->Text = L"Proceed";
 			this->ProceedButton->UseVisualStyleBackColor = true;
 			this->ProceedButton->Click += gcnew System::EventHandler(this, &MyForm::ProceedButton_Click);
+			// 
+			// saveFileDialogText
+			// 
+			this->saveFileDialogText->Filter = L"Plain Text (*.txt)|*.txt|All Files (*.*)|*.*";
 			// 
 			// MyForm
 			// 
@@ -365,8 +389,14 @@ private: System::Void ProceedButton_Click(System::Object^  sender, System::Event
 				 {
 
 				 };
+			 }
+
+			 if (IData->isFinished())
+			 {
 				 try
 				 {
+					 IData->img = TextToImage::Convert(TextBox->Text, TextBox->Font);
+
 					 double r1 = IData->GetW() / double(IData->GetH()), r2 = Box2->Width / double(Box2->Height);
 					 int W, H;
 					 if (r1 > r2)
@@ -383,8 +413,7 @@ private: System::Void ProceedButton_Click(System::Object^  sender, System::Event
 				 }
 				 finally
 				 {
-
-				 };
+				 }
 			 }
 }
 private: System::Void MyForm_Load(System::Object^  sender, System::EventArgs^  e) {
@@ -407,6 +436,25 @@ private: System::Void numericUpDown1_ValueChanged(System::Object^  sender, Syste
 }
 private: System::Void numericUpDown2_ValueChanged(System::Object^  sender, System::EventArgs^  e) {
 			 trackBar2->Value = Decimal::ToInt32(numericUpDown2->Value);
+}
+private: System::Void SaveTextButton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 if (saveFileDialogText->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			 {
+				 String^ ext = "";
+				 if (Extension::GetExt(saveFileDialogText->FileName) != ".txt") ext = ".txt";
+				 TextBox->SaveFile(saveFileDialogText->FileName + ext, RichTextBoxStreamType::PlainText);
+			 }
+}
+private: System::Void SaveImgbutton_Click(System::Object^  sender, System::EventArgs^  e) {
+			 string extension = Extension::GetExt(openFileDialog->FileName);
+			 int id = ImageFunctions::GetImageFormatIndex(extension);
+			 saveFileDialogImage->Filter = Filter::SelectSaveTypeFilter(id);
+			 if (saveFileDialogImage->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			 {
+				 String ^ext = gcnew String(Extension::ResetExt(id, extension).c_str());
+
+				 IData->GetImg()->Save(saveFileDialogImage->FileName + ext, IData->GetImgFmt());
+			 }
 }
 };
 }
